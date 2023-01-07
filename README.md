@@ -1,5 +1,4 @@
 # rest-api-app
-#
 ### Применение rest api на java script
 
 На клиенте: Vue.js
@@ -11,5 +10,4 @@
 npm run dev
 
 ### podaction version
-#
 npm run start
