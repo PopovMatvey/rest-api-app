@@ -1,17 +1,18 @@
-const express = require('express');
-const path = require('path');
-const { v4 } = require('uuid');
-const app = express();
+/*Libs*/
+const express = require('express'); // api requests lib
+const path = require('path');       // for init static directory
+const { v4 } = require('uuid');     // generate id
+const app = express();              // app iniy
+app.use(express.json());            // use json for requests
 
-// App port
-const PORT_APP = 2000;
-// Got array
-let CONTACTS = [];
+/*Varibles*/
+const PORT_APP = 2000;              // app port
+const urlRequest = '/api/contacts'; // url request api
+let CONTACTS = [];                  // got array
 
-app.use(express.json());
-
+/*Requests*/
 //GET
-app.get('/api/contacts', (req, res) => {
+app.get(`${urlRequest}`, (req, res) => {
     setTimeout(() => {
         res.status(200).json(CONTACTS);
 
@@ -20,27 +21,28 @@ app.get('/api/contacts', (req, res) => {
 });
 
 //POST "CREATE"
-app.post('/api/contacts', (req, res) => {
+app.post(`${urlRequest}`, (req, res) => {
     const contact = { ...req.body, id: v4(), marked: false }
     CONTACTS.push(contact);
     res.status(201).json(contact);
-})
+});
 
 //DELETE
-app.delete('/api/contacts/:id', (req, res) => {
+app.delete(`${urlRequest}/:id`, (req, res) => {
     CONTACTS = CONTACTS.filter(c =>
         c.id != req.params.id
     );
     res.status(200).json({ message: "Контакт был удалён" });
-})
+});
 
 //PUT
-app.put('/api/contacts/:id', (req, res) => {
+app.put(`${urlRequest}/:id`, (req, res) => {
     const idx = CONTACTS.findIndex(c => c.id === req.params.id);
     CONTACTS[idx] = req.body;
     res.json(CONTACTS[idx]);
-})
+});
 
+/*Directory*/
 // init statics
 app.use(express.static(path.resolve(__dirname, 'client')));
 
