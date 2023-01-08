@@ -1,45 +1,71 @@
 /*Libs*/
-const express = require('express'); // api requests lib
-const path = require('path');       // for init static directory
-const { v4 } = require('uuid');     // generate id
-const app = express();              // app iniy
-app.use(express.json());            // use json for requests
-
+const express = require('express');         // api requests lib
+const path = require('path');               // for init static directory
+const app = express();                      // app iniy
+app.use(express.json());                    // use json for requests
+/*Mail depenpencies*/
+require('dotenv').config();                 // work with .env file
+const nodeMailer = require('nodemailer')    // mail lib
 /*Varibles*/
-const PORT_APP = 2000;              // app port
-const urlRequest = '/api/contacts'; // url request api
-let CONTACTS = [];                  // got array
+const PORT_APP = 2000;                      // app port
+const urlRequest = '/api/mail';             // url request api
+
+
 
 /*Requests*/
 //GET
-app.get(`${urlRequest}`, (req, res) => {
-    setTimeout(() => {
-        res.status(200).json(CONTACTS);
+app.get(`${urlRequest}`, (request, response) => {
 
-    }, 1000
-    )
 });
 
-//POST "CREATE"
-app.post(`${urlRequest}`, (req, res) => {
-    const contact = { ...req.body, id: v4(), marked: false }
-    CONTACTS.push(contact);
-    res.status(201).json(contact);
+//POST
+app.post(`${urlRequest}`, (request, response) => {
+    /*Mail varible*/
+    const serviseMail = 'gmail';                            // Servise mail
+    const mailFromSent = process.env.EMAIL;                 // Sent mail
+    const mailToSent = process.env.EMAIL;                   // Got mail
+    const nameRequest = request.body.name;                  // Deserelize object (name)
+    const shortMessageRequest = request.body.shortMessage;  // Deserelize object (short message)
+    // Send message
+    const subjectLetter = `Письмо отправленое node.js`;                                  // Subject letter
+    const textLetter = `Приветствую ${nameRequest}. Послание ${shortMessageRequest}`;    // Text letter
+
+    const transporter = nodeMailer.createTransport(
+        {
+            service: serviseMail,
+            auth: {
+                user: process.env.EMAIL,
+                pass: process.env.PASSWORD,
+            }
+        })
+
+    const mailOptions = {
+        from: mailFromSent,
+        to: mailToSent,
+        subject: subjectLetter,
+        text: textLetter,
+    }
+
+    transporter.sendMail(
+        mailOptions,
+        (error) => {
+            if (error !== null) {
+                console.log(error);
+            } else {
+                console.log('Message has been sent');
+            }
+        }
+    );
 });
 
 //DELETE
-app.delete(`${urlRequest}/:id`, (req, res) => {
-    CONTACTS = CONTACTS.filter(c =>
-        c.id != req.params.id
-    );
-    res.status(200).json({ message: "Контакт был удалён" });
+app.delete(`${urlRequest}/:id`, (request, response) => {
+
 });
 
 //PUT
-app.put(`${urlRequest}/:id`, (req, res) => {
-    const idx = CONTACTS.findIndex(c => c.id === req.params.id);
-    CONTACTS[idx] = req.body;
-    res.json(CONTACTS[idx]);
+app.put(`${urlRequest}/:id`, (request, response) => {
+
 });
 
 /*Directory*/
