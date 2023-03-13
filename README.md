@@ -9,5 +9,5 @@
 ### development version
 npm run dev
 
-### podaction version
+### prodaction version
 npm run start
